@@ -29,9 +29,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     for filename in args.filenames:
         secrets.scan_file(filename)
 
+    baseline_data = {}
+    for filename in args.baseline.data:
+        collection = set([item for item in args.baseline[filename] if item.is_secret is not None])
+        if len(collection) > 0:
+            baseline_data[filename] = collection
+
     new_secrets = secrets
-    if args.baseline:
-        new_secrets = secrets - args.baseline
+    if baseline_data:
+        new_secrets = secrets - baseline_data
 
     if new_secrets:
         pretty_print_diagnostics(new_secrets)
